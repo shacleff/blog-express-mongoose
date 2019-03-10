@@ -1,11 +1,18 @@
 // 加载express模块
 var express = require("express");
 
+// 加载模板处理模块
+var swig = require("swig");
+
 // 创建app应用 => node.js http.createServer();
 var app = express();
 
-// 加载模板处理模块
-var swig = require("swig");
+/**
+ * 设置静态文件托管
+ *   1.当用户访问的url以/public开始，那么直接返回对应__dirname + "/public"下的文件
+ *   2.
+ */
+app.use("/public", express.static(__dirname + "/public"));
 
 /**
  * 配置应用模板
