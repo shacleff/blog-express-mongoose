@@ -1,0 +1,31 @@
+{
+  "name": "blog2",
+  "version": "1.0.0",
+  "description": "技术栈: node.js + express + mongodb + mongoose 博客系统",
+  "main": "index.js",
+  "directories": {
+    "doc": "doc"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "cnpm2": "node_modules/cnpm/bin/cnpm"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/132982jianan/node-blog.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/132982jianan/node-blog/issues"
+  },
+  "homepage": "https://github.com/132982jianan/node-blog#readme",
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "cookies": "^0.6.2",
+    "express": "^4.16.4",
+    "markdown": "^0.5.0",
+    "mongoose": "^4.13.18",
+    "swig": "^1.4.2"
+  }
+}
