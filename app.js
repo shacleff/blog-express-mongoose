@@ -7,6 +7,8 @@ var swig = require("swig");
 // 创建app应用 => node.js http.createServer();
 var app = express();
 
+var mongoose = require("mongoose");
+
 /**
  * 设置静态文件托管
  *   1.当用户访问的url以/public开始，那么直接返回对应__dirname + "/public"下的文件
@@ -41,23 +43,38 @@ app.set("view engine", "html");
 swig.setDefaults({cache: false});
 
 /**
+ *
+ */
+app.use("/admin", require("./routers/admin"));
+app.use("/api", require("./routers/api"));
+app.use("/", require("./routers/main"));
+
+
+/**
  * 首页
  *   1.req request对象
  *   2.res response对象
  *   3.next 函数
  */
-app.get("/", function (req, res, next) {
-    // res.send("<h1>欢迎光临我的blog!!!</h1>");
+// app.get("/", function (req, res, next) {
+//     // res.send("<h1>欢迎光临我的blog!!!</h1>");
+//
+//     /**
+//      * 读取views目录下的指定文件，解析并返回给客户端
+//      *   1.第一个参数：表示模板的文件，相对于views目录， 读取并解析 views/index.html
+//      *   2.第二个参数：传递给模板使用的数据
+//      */
+//     res.render("index");
+// });
 
-    /**
-     * 读取views目录下的指定文件，解析并返回给客户端
-     *   1.第一个参数：表示模板的文件，相对于views目录， 读取并解析 views/index.html
-     *   2.第二个参数：传递给模板使用的数据
-     */
-    res.render("index");
+mongoose.connect("mongodb://localhost:27018/blog2", function (err) {
+    if(err){
+        console.log("\n数据库连接失败");
+    }else {
+        console.log("\n数据库连接成功");
+
+        // 监听http请求
+        app.listen(8081);
+    }
 });
 
-
-
-// 监听http请求
-app.listen(8081);
