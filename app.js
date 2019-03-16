@@ -9,10 +9,11 @@ var app = express();
 
 var mongoose = require("mongoose");
 
+var bodyParser = require("body-parser");
+
 /**
  * 设置静态文件托管
  *   1.当用户访问的url以/public开始，那么直接返回对应__dirname + "/public"下的文件
- *   2.
  */
 app.use("/public", express.static(__dirname + "/public"));
 
@@ -41,6 +42,13 @@ app.set("view engine", "html");
  *   1.更改模板后，保存模板刷新页面即可，不需要重启服务器
  */
 swig.setDefaults({cache: false});
+
+/**
+ * 1.为req对象上增加一个body属性
+ * 2.body-parser为解析一泡尿股提交的post请求
+ * 3.req.body = { username: '1072772483@qq.com', password: '1', repassword: '1' }
+ */
+app.use(bodyParser.urlencoded({extended: true}));
 
 /**
  *
