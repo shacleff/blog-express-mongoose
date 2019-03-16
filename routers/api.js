@@ -1,5 +1,6 @@
 var express = require("express");
 var router = express.Router();
+var User = require("./../models/UserModel");
 
 /**
  * /user 前面这个横线不能少
@@ -34,7 +35,7 @@ router.use(function (req, res, next) {
 router.post("/user/register", function (req, res, next) {
 
     var username = req.body.username;
-    var passwrod = req.body.password;
+    var password = req.body.password;
     var repassword = req.body.repassword;
 
     if(username == ""){
@@ -44,22 +45,64 @@ router.post("/user/register", function (req, res, next) {
         return;
     }
 
-    if(passwrod == ""){
+    if(password == ""){
         responseData.code = 2;
         responseData.message = '密码不能为空';
         res.json(responseData);
         return;
     }
 
-    if(passwrod !== repassword){
+    if(password !== repassword){
         responseData.code = 3;
         responseData.message = '两次输入密码必须一致';
         res.json(responseData);
         return;
     }
 
-    responseData.message = "注册成功";
-    res.json(responseData);
+    //
+    User.findOne({username: username}).then(function (userInfo) {
+        console.log("\nuserInfo =", userInfo);
+        if(userInfo){
+            responseData.code = 4;
+            responseData.message = "用户名已经被注册";
+            res.json(responseData);
+            return;
+        }
+
+        /**
+         * 这里字段拼写错误，则会导致存不上这个字段
+         */
+        var user = new User({
+            username: username,
+            password: password
+        });
+
+        /**
+         * 1.这个user.save 返回的又是一个Promise对象，因此接下来可以继续then
+         * 2.像操作对象一样操作数据库
+         */
+        return user.save();
+
+    }).then(function (newUserInfo) {
+
+
+        if(!newUserInfo){
+            responseData.code = 5;
+            responseData.message = "系统错误";
+            res.json(responseData);
+            return;
+        }
+        /**
+         * newUserInfo = { __v: 0, username: '1', _id: 5c8d2a09153d5e0a96803180 }
+         * 并不是返回的user对象的信息
+         */
+        console.log("\nnewUserInfo =", newUserInfo);
+        responseData.message = "注册成功";
+        res.json(responseData);
+    });
+
+
+
 
 });
 
