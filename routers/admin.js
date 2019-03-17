@@ -401,7 +401,11 @@ router.post("/content/edit", function (req, res) {
         return;
     }
 
-    //
+    /**
+     * update参数
+     *   1.条件
+     *   2.最新内容
+     */
     Content.update({
         _id: id
     }, {
