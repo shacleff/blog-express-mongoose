@@ -63,6 +63,7 @@ $(function() {
                 $loginBox.find('.colWarning').html(result.message);
 
                 if (!result.code) {
+
                     //登录成功
                     window.location.reload();
                 }
