@@ -54,6 +54,10 @@ router.get("/user", function (req, res, next) {
         // 当前请求页数跳过的数据条数
         var skip = (page - 1) * limit;
 
+        /**
+         * 1 升序
+         * -1 降序
+         */
         User.find().sort({_id: -1}).limit(limit).skip(skip).then(function (users) {
             res.render("admin/user_index", {
                 userInfo: req.userInfo,
@@ -271,6 +275,17 @@ router.get("/category/delete", function (req, res, next) {
     });
 });
 
+/**
+ * 内容添加页面
+ */
+router.get("/content/add", function (req, res) {
+    Category.find().then(function (categories) {
+        res.render("admin/content_add", {
+            userInfo: req.userInfo,
+            categories: categories
+        });
+    });
+});
 
 module.exports = router;
 
