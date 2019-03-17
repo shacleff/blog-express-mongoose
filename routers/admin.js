@@ -18,7 +18,7 @@ router.use(function (req, res, next) {
  * app.use("/admin", require("./routers/admin")); 这种其实指定的是以admin开头的路由访问的是/，再次写/admin就不对了
  *
  */
-router.get("/", function (req, res, next) {
+router.get("/", function (req, res) {
 
     // console.log("\nadmin req.userInfo =", req.userInfo);
 
@@ -30,7 +30,7 @@ router.get("/", function (req, res, next) {
 /**
  * 用户管理: 分页展示
  */
-router.get("/user", function (req, res, next) {
+router.get("/user", function (req, res) {
 
 
     // 玩家请求第几页
@@ -75,7 +75,7 @@ router.get("/user", function (req, res, next) {
 /**
  * 分类首页: 分页展示
  */
-router.get("/category", function (req, res, next) {
+router.get("/category", function (req, res) {
 
     // 玩家请求第几页
     var page = parseInt(req.query.page || 1);
@@ -116,7 +116,7 @@ router.get("/category", function (req, res, next) {
 /**
  * 添加分类
  */
-router.get("/category/add", function (req, res, next) {
+router.get("/category/add", function (req, res) {
     res.render("admin/category_add", {
         userInfo: req.userInfo,
     });
@@ -127,7 +127,7 @@ router.get("/category/add", function (req, res, next) {
  *   1.get 返回界面
  *   2.post 接受表单提交过来的数据
  */
-router.post("/category/add", function (req, res, next) {
+router.post("/category/add", function (req, res) {
     console.log("add req.body =", req.body);
 
     var name = req.body.name || '';
@@ -194,7 +194,7 @@ router.get("/category/edit", function (req, res) {
 /**
  * 分类保存: 虽然和上面参数一样，但是这个是post，上面那个是get
  */
-router.post("/category/edit", function (req, res, next) {
+router.post("/category/edit", function (req, res) {
 
     // 当前修改的
     var id = req.query.id || '';
@@ -263,7 +263,7 @@ router.post("/category/edit", function (req, res, next) {
  * 分类删除
  *   1.<a href="/admin/category/delete?id={{category._id.toString()}}">删除</a>   通过跳转的连接，因此，可以得到query的id
  */
-router.get("/category/delete", function (req, res, next) {
+router.get("/category/delete", function (req, res) {
     var id = req.query.id || '';
     Category.remove({
         _id: id
@@ -350,6 +350,90 @@ router.post("/content/add", function (req, res) {
     });
 });
 
+/**
+ * 修改内容。 点击修改内容按钮触发
+ */
+router.get("/content/edit", function (req, res) {
+    var id = req.query.id || "";
+    var categories = [];
+
+    Category.find().sort({_id: 1}).then(function (rs) {
+        categories = rs;
+
+        return Content.findOne({
+            _id: id
+        }).populate("category");
+    }).then(function (content) {
+        if(!content){
+            res.render("admin/error", {
+                userInfo: req.userInfo,
+                message: "指定内容不存在"
+            });
+            return Promise.reject();
+        }
+
+        res.render("admin/content_edit", {
+            userInfo: req.userInfo,
+            categories: categories,
+            content: content
+        });
+    });
+});
+
+/**
+ * 保存修改内容
+ */
+router.post("/content/edit", function (req, res) {
+    var id = req.query.id || '';
+    if(!req.body.category){
+        res.render("admin/error", {
+            userInfo: req.userInfo,
+            message: "内容分类不能为空"
+        });
+        return;
+    }
+
+    if(!req.body.title){
+        res.render("admin/error", {
+            userInfo: req.userInfo,
+            message: "内容标题不能为空"
+        });
+        return;
+    }
+
+    //
+    Content.update({
+        _id: id
+    }, {
+        category: req.body.category,
+        title: req.body.title,
+        description: req.body.description,
+        content: req.body.content
+    }).then(function () {
+        res.render("admin/success", {
+            userInfo: req.userInfo,
+            message: "内容保存成功",
+            url: '/admin/content/edit?id=' + id
+        });
+    });
+
+});
+
+/**
+ * 内容删除
+ */
+router.get("/content/delete", function (req, res) {
+    var id = req.query.id || '';
+    Content.remove({
+        _id: id
+    }).then(function () {
+        res.render("admin/success", {
+            userInfo: req.userInfo,
+            message: "删除成功",
+            url: "/admin/content"
+        });
+    });
+});
 
 module.exports = router;
 

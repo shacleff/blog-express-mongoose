@@ -11,7 +11,7 @@ var schema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
 
         // 引用: 引用另一张表?????
-        ref: 'Content'
+        ref: 'Category'
     },
 
     // 内容标
