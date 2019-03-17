@@ -1,8 +1,11 @@
 var express = require("express");
 var router = express.Router();
 
-router.get("/user", function (req, res, next) {
-    res.send("admin-user");
+router.get("/admin", function (req, res, next) {
+
+    console.log("\nadmin req.userInfo =", req.userInfo);
+
+    res.send("admin");
 });
 
 module.exports = router;

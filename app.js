@@ -15,6 +15,9 @@ var bodyParser = require("body-parser");
 // 加载Cookies模块
 var Cookies = require("cookies");
 
+//
+var User = require("./models/User");
+
 /**
  * 设置静态文件托管
  *   1.当用户访问的url以/public开始，那么直接返回对应__dirname + "/public"下的文件
@@ -69,19 +72,27 @@ app.use(function (req, res, next) {
      */
     req.userInfo = {};
 
-    var userInfoJson = req.cookies.get("userInfo");
+    var userInfoJson = req.cookies.get("userInfo")
+
+    // 由于cookies这个中间件，不论客户端请求哪个页面，都会把这个cookies发过来
+    // console.log("\ncookies req.cookies.get(\"userInfo\") =", req.cookies.get("userInfo"));
+
     if(userInfoJson){
         try{
             req.userInfo = JSON.parse(userInfoJson);
+
+            // 获取
+            User.findById(req.userInfo._id).then(function (userInfo) {
+                req.userInfo.isAdmin = Boolean(userInfo.isAdmin);
+                next();
+            });
+
         }catch (e) {
-
+            console.log("err =", e.message);
         }
+    }else {
+        next();
     }
-
-    // 由于cookies这个中间件，不论客户端请求哪个页面，都会把这个cookies发过来
-    console.log("\ncookies req.cookies.get(\"userInfo\") =", req.cookies.get("userInfo"));
-
-    next();
 });
 
 /**
