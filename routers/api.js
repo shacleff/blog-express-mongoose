@@ -116,10 +116,33 @@ router.post("/user/login", function (req, res, next) {
         }
 
         responseData.message = "登陆成功";
+
+        responseData.userInfo = {
+            _id : userInfo._id,
+            username: userInfo.username
+        };
+
+        /**
+         * 存储登陆信息到cookies中
+         */
+        req.cookies.set("userInfo", JSON.stringify({
+            _id: userInfo._id,
+            username: userInfo.username
+        }));
+
         res.json(responseData);
         return;
     });
 });
+
+/**
+ * 退出登陆后清空cookie，其实cocos  creator也一样，本地数据localStorage就相当于这里的cookie
+ */
+router.post("/user/logout", function (req, res, next) {
+    req.cookies.set("userInfo", null);
+    res.json(responseData);
+    next();
+})
 
 module.exports = router;
 

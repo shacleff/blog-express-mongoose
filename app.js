@@ -9,7 +9,11 @@ var app = express();
 
 var mongoose = require("mongoose");
 
+// 解析post请求
 var bodyParser = require("body-parser");
+
+// 加载Cookies模块
+var Cookies = require("cookies");
 
 /**
  * 设置静态文件托管
@@ -49,6 +53,36 @@ swig.setDefaults({cache: false});
  * 3.req.body = { username: '1072772483@qq.com', password: '1', repassword: '1' }
  */
 app.use(bodyParser.urlencoded({extended: true}));
+
+
+/**
+ * 设置cookie
+ *   1.可见中间件都是给req之类的增加一些属性
+ */
+app.use(function (req, res, next) {
+    req.cookies = new Cookies(req, res);
+
+    /**
+     * 可以被所有路由访问的全局数据
+     *   1.解析登陆用户的登陆信息
+     * @type {{}}
+     */
+    req.userInfo = {};
+
+    var userInfoJson = req.cookies.get("userInfo");
+    if(userInfoJson){
+        try{
+            req.userInfo = JSON.parse(userInfoJson);
+        }catch (e) {
+
+        }
+    }
+
+    // 由于cookies这个中间件，不论客户端请求哪个页面，都会把这个cookies发过来
+    console.log("\ncookies req.cookies.get(\"userInfo\") =", req.cookies.get("userInfo"));
+
+    next();
+});
 
 /**
  *
