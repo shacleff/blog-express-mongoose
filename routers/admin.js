@@ -2,6 +2,7 @@ var express = require("express");
 var router = express.Router();
 var User = require("./../models/User");
 var Category = require("./../models/Category");
+var Content = require("./../models/Content");
 
 router.use(function (req, res, next) {
     if(!req.userInfo.isAdmin){
@@ -19,7 +20,7 @@ router.use(function (req, res, next) {
  */
 router.get("/", function (req, res, next) {
 
-    console.log("\nadmin req.userInfo =", req.userInfo);
+    // console.log("\nadmin req.userInfo =", req.userInfo);
 
     res.render("admin/index", {
         userInfo: req.userInfo
@@ -276,6 +277,31 @@ router.get("/category/delete", function (req, res, next) {
 });
 
 /**
+ * 内容首页
+ */
+router.get("/content", function (req, res) {
+    var page = parseInt(req.query.page || 1);
+    var limit = 10;
+    var pages = 0;
+    Content.count().then(function (count) {
+        pages = Math.ceil(count/limit);
+        page = Math.min(page, pages);
+        page = Math.max(page, 1);
+        var skip = (page-1)*limit;
+        Content.find().limit(limit).skip(skip).populate(['category', 'user']).sort({addTime: -1}).then(function (contents) {
+            res.render("admin/content_index", {
+                userInfo: req.userInfo,
+                contents: contents,
+                count: count,
+                pages: pages,
+                limit: limit,
+                page: page
+            });
+        });
+    });
+});
+
+/**
  * 内容添加页面
  */
 router.get("/content/add", function (req, res) {
@@ -286,6 +312,44 @@ router.get("/content/add", function (req, res) {
         });
     });
 });
+
+/**
+ * 内容保存
+ */
+router.post("/content/add", function (req, res) {
+    // console.log("\ncontent/add =", req.body);
+
+    if(req.body.category == ""){
+        res.render("admin/error", {
+            userInfo: req.userInfo,
+            message: "分类内容不能为空"
+        });
+        return;
+    }
+
+    if(req.body.title == ""){
+        res.render("admin/error", {
+            userInfo: req.userInfo,
+            message: "分类标题不能为空"
+        });
+        return;
+    }
+
+    new Content({
+        category: req.body.category,
+        title: req.body.title,
+        description: req.body.description,
+        content: req.body.content,
+    }).save().then(function (rs) {
+        res.render("admin/error", {
+            userInfo: req.userInfo,
+            message: "分类保存成功",
+            url: '/admin/content'
+        });
+        return;
+    });
+});
+
 
 module.exports = router;
 
