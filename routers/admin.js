@@ -338,6 +338,7 @@ router.post("/content/add", function (req, res) {
     new Content({
         category: req.body.category,
         title: req.body.title,
+        user: req.userInfo._id.toString(),  // 这样就和User表格关联起来了
         description: req.body.description,
         content: req.body.content,
     }).save().then(function (rs) {

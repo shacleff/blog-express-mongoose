@@ -10,8 +10,17 @@ var schema = new mongoose.Schema({
         // 类型
         type: mongoose.Schema.Types.ObjectId,
 
-        // 引用: 引用另一张表?????
+        // 引用: 引用另一张表
         ref: 'Category'
+    },
+
+    user: {
+
+        // 类型
+        type: mongoose.Schema.Types.ObjectId,
+
+        // 引用
+        ref: 'User'
     },
 
     // 内容标
@@ -30,6 +39,18 @@ var schema = new mongoose.Schema({
     content: {
         type: String,
         default: ""
+    },
+
+    // 添加时间
+    addTime: {
+        type: Date,
+        default: new Date()
+    },
+
+    // 阅读量
+    views: {
+        type: Number,
+        default: 0
     }
 });
 
