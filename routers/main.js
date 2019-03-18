@@ -3,29 +3,38 @@ var router = express.Router();
 var Category = require("./../models/Category");
 var Content = require("./../models/Content");
 
+var data;
+
+/**
+ * 通用数据处理
+ */
+router.use(function (req, res, next) {
+
+    data = {
+        userInfo: req.userInfo,
+        categories: [],
+    };
+
+    Category.find().sort({_id: -1}).then(function (categories) {
+        data.categories = categories;
+        next();
+    });
+});
+
 router.get("/", function (req, res, next) {
 
-    var data = {
-        page: parseInt(req.query.page || 1),
-        limit: 2,
-        pages: 0,
-        category: req.query.category || "",
-        categories: [],
-        count: 0,
-        userInfo: req.userInfo,
-    };
+    data.category = req.query.category || "";
+    data.count = 0;
+    data.page = parseInt(req.query.page || 1);
+    data.limit =2;
+    data.pages= 0;
 
     var where = {};
     if(data.category){
         where.category = data.category;
     }
-
-    console.log(data.category);
-
-    Category.find().sort({_id: -1}).then(function (categories) {
-        data.categories = categories;
-        return Content.where(where).count();
-    }).then(function (count) {
+    
+    Content.where(where).count().then(function (count) {
         data.count = count;
         data.pages = Math.ceil(data.count / data.limit);
         data.page = Math.min(data.page, data.pages);
@@ -37,6 +46,16 @@ router.get("/", function (req, res, next) {
     }).then(function (contents) {
         data.contents = contents;
         res.render("main/index", data);
+    });
+});
+
+router.get("/view", function (req, res) {
+    var contentid = req.query.contentid || "";
+    Content.findOne({
+        _id: contentid
+    }).then(function (content) {
+        data.content = content;
+        res.render("main/view", data);
     });
 });
 
