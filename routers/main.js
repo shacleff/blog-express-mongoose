@@ -55,6 +55,10 @@ router.get("/view", function (req, res) {
         _id: contentid
     }).then(function (content) {
         data.content = content;
+
+        content.views++;
+        content.save();  // 阅读数增加
+
         res.render("main/view", data);
     });
 });
