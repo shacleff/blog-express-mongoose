@@ -149,7 +149,7 @@ router.post("/user/logout", function (req, res, next) {
  * 获得文章所有评论
  */
 router.get("/comment", function (req, res) {
-    var contentId = req.query.contentId || "";
+    var contentId = req.query.contentid || "";
     Content.findOne({
         _id: contentId
     }).then(function (content) {
