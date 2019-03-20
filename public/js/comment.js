@@ -13,7 +13,7 @@ $('#messageBtn').on('click', function() {
             content: $('#messageContent').val()
         },
         success: function(responseData) {
-            //console.log(responseData);
+            console.log(responseData);
             $('#messageContent').val('');
             comments = responseData.data.comments.reverse();
             renderComment();

@@ -1,6 +1,7 @@
 var express = require("express");
 var router = express.Router();
 var User = require("./../models/User");
+var Content = require("./../models/Content");
 
 /**
  * /user 前面这个横线不能少
@@ -142,7 +143,46 @@ router.post("/user/logout", function (req, res, next) {
     req.cookies.set("userInfo", null);
     res.json(responseData);
     next();
-})
+});
+
+/**
+ * 获得文章所有评论
+ */
+router.get("/comment", function (req, res) {
+    var contentId = req.query.contentId || "";
+    Content.findOne({
+        _id: contentId
+    }).then(function (content) {
+        responseData.data = content.comments;
+        res.json(responseData);
+    });
+});
+
+
+/**
+ * 评论提交
+ */
+router.post("/comment/post", function (req, res, next) {
+    // 评论的id
+    var contentId = req.body.contentid || '';
+    var postData = {
+        username: req.userInfo.username,
+        postTime: new Date(),
+        content: req.body.content,
+    };
+
+    // 查询当前这篇文章的信息
+    Content.findOne({
+        _id: contentId
+    }).then(function (content) {
+        content.comments.push(postData);
+        return content.save();
+    }).then(function (newContent) {
+        responseData.message = "评论成功";
+        responseData.data = newContent;
+        res.json(responseData);
+    });
+});
 
 module.exports = router;
 
