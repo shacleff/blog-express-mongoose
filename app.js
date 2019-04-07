@@ -80,7 +80,7 @@ app.use(function (req, res, next) {
     if(userInfoJson){
         try{
             req.userInfo = JSON.parse(userInfoJson);
-
+            console.log("req.userInfo =", req.userInfo);
             // 获取
             User.findById(req.userInfo._id).then(function (userInfo) {
                 req.userInfo.isAdmin = Boolean(userInfo.isAdmin);
@@ -127,6 +127,7 @@ mongoose.connect("mongodb://localhost:27018/blog2", function (err) {
         console.log("\n数据库连接成功");
         // 监听http请求
         app.listen(8081);
+        console.log("浏览器打开 http://localhost:8081");
     }
 });
 
