@@ -122,13 +122,9 @@ app.use("/", require("./routers/main"));
 
 mongoose.connect("mongodb://localhost:27018/blog2", function (err) {
     if(err){
-
         console.log("\n数据库连接失败");
-
     }else {
-
         console.log("\n数据库连接成功");
-
         // 监听http请求
         app.listen(8081);
     }
