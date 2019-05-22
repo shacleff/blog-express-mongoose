@@ -19,13 +19,12 @@ var Content = require("./../models/Content");
  *
  *   2.数据库查询
  *     1.用户是否已经被注册了
- *
  */
 var responseData = {};
 
 // 中间件，将返回代码格式统一起来
 router.use(function (req, res, next) {
-    responseData = {
+    responseData = { // 规定下数据格式
         code: 0,
         message: ''
     };
@@ -33,8 +32,10 @@ router.use(function (req, res, next) {
     next();
 });
 
+/**
+ * 用户注册
+ */
 router.post("/user/register", function (req, res, next) {
-
     var username = req.body.username;
     var password = req.body.password;
     var repassword = req.body.repassword;
@@ -60,8 +61,7 @@ router.post("/user/register", function (req, res, next) {
         return;
     }
 
-    //
-    User.findOne({username: username}).then(function (userInfo) {
+    User.findOne({username: username}).then(function (userInfo) { // 数据库查询是否注册过了
         console.log("\nuserInfo =", userInfo);
         if(userInfo){
             responseData.code = 4;
@@ -84,7 +84,7 @@ router.post("/user/register", function (req, res, next) {
          */
         return user.save();
 
-    }).then(function (newUserInfo) {
+    }).then(function (newUserInfo) { // 异步得到的这个newUserInfo就是上次save的那个数据
 
         console.log("\nnewUserInfo =", newUserInfo);
         responseData.message = "注册成功";
@@ -92,8 +92,10 @@ router.post("/user/register", function (req, res, next) {
     });
 });
 
+/**
+ * 用户登录
+ */
 router.post("/user/login", function (req, res, next) {
-
     var username = req.body.username;
     var password = req.body.password;
 
@@ -157,7 +159,6 @@ router.get("/comment", function (req, res) {
         res.json(responseData);
     });
 });
-
 
 /**
  * 评论提交

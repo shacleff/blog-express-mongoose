@@ -1,21 +1,12 @@
-// 加载express模块
-var express = require("express");
-
-// 加载模板处理模块
-var swig = require("swig");
-
-// 创建app应用 => node.js http.createServer();
-var app = express();
-
+var express = require("express"); // 加载express模块
+var swig = require("swig"); // 加载模板处理模块
+var app = express(); // 创建app应用 => node.js http.createServer();
 var mongoose = require("mongoose");
 
-// 解析post请求
-var bodyParser = require("body-parser");
+var bodyParser = require("body-parser"); // 解析post请求
 
-// 加载Cookies模块
-var Cookies = require("cookies");
+var Cookies = require("cookies"); // 加载Cookies模块
 
-//
 var User = require("./models/User");
 
 /**
@@ -25,7 +16,7 @@ var User = require("./models/User");
 app.use("/public", express.static(__dirname + "/public"));
 
 /**
- * 配置应用模板
+ * 配置应用模板,后缀
  *   1.定义当前应用所使用的模板引擎
  *   2.第一个参数:模板引擎的名称，同时也是模板文件的后缀
  *   3.第二个参数表示用于解析处理模板内容的方法
@@ -57,7 +48,6 @@ swig.setDefaults({cache: false});
  */
 app.use(bodyParser.urlencoded({extended: true}));
 
-
 /**
  * 设置cookie
  *   1.可见中间件都是给req之类的增加一些属性
@@ -68,7 +58,6 @@ app.use(function (req, res, next) {
     /**
      * 可以被所有路由访问的全局数据
      *   1.解析登陆用户的登陆信息
-     * @type {{}}
      */
     req.userInfo = {};
 
@@ -76,14 +65,14 @@ app.use(function (req, res, next) {
 
     // 由于cookies这个中间件，不论客户端请求哪个页面，都会把这个cookies发过来
     // console.log("\ncookies req.cookies.get(\"userInfo\") =", req.cookies.get("userInfo"));
-
     if(userInfoJson){
         try{
             req.userInfo = JSON.parse(userInfoJson);
             console.log("req.userInfo =", req.userInfo);
+
             // 获取
-            User.findById(req.userInfo._id).then(function (userInfo) {
-                req.userInfo.isAdmin = Boolean(userInfo.isAdmin);
+            User.findById(req.userInfo._id).then(function (userInfo) { // req.cookies.set("userInfo", JSON.stringify({ _id: userInfo._id, username: userInfo.username }));
+                req.userInfo.isAdmin = Boolean(userInfo.isAdmin);  // 写不到数据库，而是动态获取
                 next();
             });
 
@@ -96,7 +85,7 @@ app.use(function (req, res, next) {
 });
 
 /**
- *
+ * 3个路由
  */
 app.use("/admin", require("./routers/admin"));
 app.use("/api", require("./routers/api"));
@@ -120,13 +109,15 @@ app.use("/", require("./routers/main"));
 //     res.render("index");
 // });
 
+/**
+ * 连接mongodb服务器
+ */
 mongoose.connect("mongodb://localhost:27018/blog2", function (err) {
     if(err){
         console.log("\n数据库连接失败");
     }else {
         console.log("\n数据库连接成功");
-        // 监听http请求
-        app.listen(8081);
+        app.listen(8081); // 连接数据库成功才监听http请求
         console.log("浏览器打开 http://localhost:8081");
     }
 });

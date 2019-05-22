@@ -9,7 +9,6 @@ var data;
  * 通用数据处理
  */
 router.use(function (req, res, next) {
-
     data = {
         userInfo: req.userInfo,
         categories: [],

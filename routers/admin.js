@@ -16,12 +16,11 @@ router.use(function (req, res, next) {
 /**
  * 首页
  * app.use("/admin", require("./routers/admin")); 这种其实指定的是以admin开头的路由访问的是/，再次写/admin就不对了
+ * 
+ * 对于客户端: 则需要写 http://localhost:3000/admin/xxx 这样的格式
  *
  */
-router.get("/", function (req, res) {
-
-    // console.log("\nadmin req.userInfo =", req.userInfo);
-
+router.get("/", function (req, res) { // req.userInfo 这个字段在app加上后，就都有了
     res.render("admin/index", {
         userInfo: req.userInfo
     });
@@ -31,7 +30,6 @@ router.get("/", function (req, res) {
  * 用户管理: 分页展示
  */
 router.get("/user", function (req, res) {
-
 
     // 玩家请求第几页
     var page = parseInt(req.query.page || 1);
@@ -111,7 +109,6 @@ router.get("/category", function (req, res) {
        });
     });
 });
-
 
 /**
  * 添加分类
@@ -195,7 +192,6 @@ router.get("/category/edit", function (req, res) {
  * 分类保存: 虽然和上面参数一样，但是这个是post，上面那个是get
  */
 router.post("/category/edit", function (req, res) {
-
     // 当前修改的
     var id = req.query.id || '';
 
@@ -255,7 +251,6 @@ router.post("/category/edit", function (req, res) {
             url: "/admin/category"
         });
     });
-
 });
 
 
@@ -317,8 +312,6 @@ router.get("/content/add", function (req, res) {
  * 内容保存
  */
 router.post("/content/add", function (req, res) {
-    // console.log("\ncontent/add =", req.body);
-
     if(req.body.category == ""){
         res.render("admin/error", {
             userInfo: req.userInfo,
