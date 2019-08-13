@@ -5,6 +5,11 @@ var Category = require("./../models/Category");
 var Content = require("./../models/Content");
 
 router.use(function (req, res, next) {
+    /**
+     * 由于在app.js中设置的有中间件,会一直在req中携带userInfo
+     * 在这里属于提前拦截
+     */
+
     if(!req.userInfo.isAdmin){
         res.send("只有管理员才能进入后台");
         return;
@@ -15,10 +20,8 @@ router.use(function (req, res, next) {
 
 /**
  * 首页
- * app.use("/admin", require("./routers/admin")); 这种其实指定的是以admin开头的路由访问的是/，再次写/admin就不对了
- * 
- * 对于客户端: 则需要写 http://localhost:3000/admin/xxx 这样的格式
- *
+ *   (1)服务器端: app.use("/admin", require("./routers/admin")); 这种其实指定的是以admin开头的路由访问的是/，再次写/admin就不对了
+ *   (2)对于浏览器请求: 则需要写 http://localhost:3000/admin/xxx 这样的格式
  */
 router.get("/", function (req, res) { // req.userInfo 这个字段在app加上后，就都有了
     res.render("admin/index", {
@@ -28,35 +31,20 @@ router.get("/", function (req, res) { // req.userInfo 这个字段在app加上�
 
 /**
  * 用户管理: 分页展示
+ *   (1)用法: http://localhost:8081/admin/user?page=2
  */
 router.get("/user", function (req, res) {
+    var page = parseInt(req.query.page || 1); // 玩家请求第几页
+    var limit = 10; // 一页限制10条记录
+    var pages = 0; // 当前一共几页
 
-    // 玩家请求第几页
-    var page = parseInt(req.query.page || 1);
-
-    // 一页限制10条记录
-    var limit = 10;
-
-    // 当前一共几页
-    var pages = 0;
-
-    // 统计有几条记录
-    User.count().then(function (count) {
+    User.count().then(function (count) { // 统计有几条记录
         pages = Math.ceil(count/limit);
+        page = Math.min(page, pages); // 限制在合适的请求页数内
+        page = Math.max(page, 1); // 最小1页
+        var skip = (page - 1) * limit; // 当前请求页数跳过的数据条数
 
-        // 限制在合适的请求页数内
-        page = Math.min(page, pages);
-
-        // 最小1页
-        page = Math.max(page, 1);
-
-        // 当前请求页数跳过的数据条数
-        var skip = (page - 1) * limit;
-
-        /**
-         * 1 升序
-         * -1 降序
-         */
+        //-1 降序 1 升序
         User.find().sort({_id: -1}).limit(limit).skip(skip).then(function (users) {
             res.render("admin/user_index", {
                 userInfo: req.userInfo,
@@ -72,29 +60,18 @@ router.get("/user", function (req, res) {
 
 /**
  * 分类首页: 分页展示
+ *   (1)http://localhost:8081/?category=5d522c25a963740e972c7f6e
  */
 router.get("/category", function (req, res) {
-
-    // 玩家请求第几页
     var page = parseInt(req.query.page || 1);
-
-    // 一页限制10条记录
     var limit = 10;
-
-    // 当前一共几页
     var pages = 0;
 
     // 统计有几条记录
     Category.count().then(function (count) {
        pages = Math.ceil(count/limit);
-
-       // 限制在合适的请求页数内
        page = Math.min(page, pages);
-
-       // 最小1页
        page = Math.max(page, 1);
-
-       // 当前请求页数跳过的数据条数
        var skip = (page - 1) * limit;
 
        Category.find().sort({_id: -1}).limit(limit).skip(skip).then(function (categories) {
@@ -121,8 +98,8 @@ router.get("/category/add", function (req, res) {
 
 /**
  * 分类的保存
- *   1.get 返回界面
- *   2.post 接受表单提交过来的数据
+ *   (1)get 返回界面
+ *   (2)post 接受表单提交过来的数据
  */
 router.post("/category/add", function (req, res) {
     console.log("add req.body =", req.body);
@@ -140,7 +117,7 @@ router.post("/category/add", function (req, res) {
     Category.findOne({
         name: name
     }).then(function (rs) {
-        if(rs){
+        if(rs){ // 查询到了就是已经存在
             res.render("admin/error", {
                 userInfo: req.userInfo,   // 由于继承来的页面的信息也需要初始化，因此需要传递这个userInfo
                 message: "分类已经存在"
@@ -256,7 +233,8 @@ router.post("/category/edit", function (req, res) {
 
 /**
  * 分类删除
- *   1.<a href="/admin/category/delete?id={{category._id.toString()}}">删除</a>   通过跳转的连接，因此，可以得到query的id
+ *   (1)<a href="/admin/category/delete?id={{category._id.toString()}}">删除</a>
+ *     通过跳转的连接，因此，可以得到query的id
  */
 router.get("/category/delete", function (req, res) {
     var id = req.query.id || '';
@@ -345,7 +323,7 @@ router.post("/content/add", function (req, res) {
 });
 
 /**
- * 修改内容。 点击修改内容按钮触发
+ * 修改内容: 点击修改内容按钮触发
  */
 router.get("/content/edit", function (req, res) {
     var id = req.query.id || "";
@@ -397,8 +375,8 @@ router.post("/content/edit", function (req, res) {
 
     /**
      * update参数
-     *   1.条件
-     *   2.最新内容
+     *   (1)条件
+     *   (2)最新内容
      */
     Content.update({
         _id: id
@@ -414,7 +392,6 @@ router.post("/content/edit", function (req, res) {
             url: '/admin/content/edit?id=' + id
         });
     });
-
 });
 
 /**

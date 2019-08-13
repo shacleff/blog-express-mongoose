@@ -20,6 +20,11 @@ router.use(function (req, res, next) {
     });
 });
 
+/**
+ * 访问举例:
+ *    (1)http://localhost:8081/?category=5d522c1da963740e972c7f6d
+ *    (2)这个category字段, 是在进入首页时在layout.html中就设置好的,客户端点击后,自动跳转
+ */
 router.get("/", function (req, res, next) {
 
     data.category = req.query.category || "";
@@ -32,7 +37,8 @@ router.get("/", function (req, res, next) {
     if(data.category){
         where.category = data.category;
     }
-    
+
+    // 跳转到首页后,在render时，给各个分类添加好跳转连接
     Content.where(where).count().then(function (count) {
         data.count = count;
         data.pages = Math.ceil(data.count / data.limit);
