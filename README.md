@@ -1,7 +1,8 @@
-# node-blog
-技术栈:express + mongoose 博客系统
+# node-blog博客系统
+* express 
+* mongoose 
 
-# mongodb启动
+## 1)mongodb启动
 
 ```
 mongod --dbpath=/Users/jianan/Documents/other/node-blog/db --port=27018
